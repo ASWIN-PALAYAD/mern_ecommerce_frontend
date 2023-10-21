@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import baseURL from "../../../utils/baseURL";
+import { resetErrorAction } from "../globalActions/globalActions";
 
 //initial state
 const initialState = {
@@ -12,9 +13,32 @@ const initialState = {
   userAuth: {
     loading: false,
     error: null,
-    userInfo: {},
+    userInfo: localStorage.getItem("userInfo")? JSON.parse(localStorage.getItem('userInfo') ): null
   },
 };
+
+
+//register action
+export const registerUserAction = createAsyncThunk(
+    "users/register", 
+    async ({email,password,fullname},{rejectWithValue,getState,dispatch}) => {
+        try {
+            //http request
+            const {data} = await axios.post(`${baseURL}/users/register`,{
+                email,
+                password,
+                fullname
+            });
+            
+            return data
+        } catch (error) {
+            return rejectWithValue(error?.response.data)
+        }
+    }
+    
+);
+
+
 
 //login action
 export const loginUserAction = createAsyncThunk(
@@ -26,6 +50,8 @@ export const loginUserAction = createAsyncThunk(
                 email,
                 password
             });
+            //save the user to localstorage
+            localStorage.setItem('userInfo',JSON.stringify(data))
             return data
         } catch (error) {
             return rejectWithValue(error?.response.data)
@@ -35,7 +61,7 @@ export const loginUserAction = createAsyncThunk(
 );
 
 
-//users Clice
+//users slice
 
 const userSlice = createSlice({
     name:"users",
@@ -53,6 +79,24 @@ const userSlice = createSlice({
         builder.addCase(loginUserAction.rejected,(state,action)=>{
             state.userAuth.loading = false;
             state.userAuth.error = action.payload;
+        });
+
+        //register
+        builder.addCase(registerUserAction.pending,(state,action)=>{
+            state.loading = true;
+        });
+        builder.addCase(registerUserAction.fulfilled,(state,action)=>{
+            state.loading = false;
+            state.user = action.payload;
+        });
+        builder.addCase(registerUserAction.rejected,(state,action)=>{
+            state.loading = false;
+            state.error = action.payload;
+        });
+
+        //reset error action
+        builder.addCase(resetErrorAction.pending,(state)=>{
+            state.error = null
         });
     }
 });

@@ -6,6 +6,11 @@ import {
   Transition,
   RadioGroup,
 } from "@headlessui/react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProductsAction } from "../../../redux/slices/products/productSlices";
+import { fetchBrandsAction } from "../../../redux/slices/categories/brandSlices";
+import { fetchColorsAction } from "../../../redux/slices/categories/colorSlices";
+
 
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
@@ -15,6 +20,8 @@ import {
   PlusIcon,
 } from "@heroicons/react/20/solid";
 import Products from "./Products";
+import { useSearchParams } from "react-router-dom";
+import baseURL from "../../../utils/baseURL";
 
 const sortOptions = [
   { name: "Most Popular", href: "#", current: true },
@@ -56,36 +63,61 @@ function classNames(...classes) {
 }
 
 const sizeCategories = [
-  "XXS",
-  "XS",
-  "S",
   "M",
   "L",
   "XL",
-  "XXL",
-  "XXXL",
-  "XXXXL",
+  "XXL"
 ];
 
 export default function ProductsFilters() {
+
+  const dispatch = useDispatch();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+//get query string
+const [params,setParams] = useSearchParams();
+const category = params.get('category');
+
+const [color,setColor] = useState('');
+const [price,setPrice] = useState('');
+const [brand,setBrand] = useState('');
+const [size,setSize] = useState('');
+
+//build up url
+let productUrl = `${baseURL}/products`
+//fetch all products
+useEffect(()=>{
+  dispatch(fetchProductsAction({
+    url:productUrl,
+  }))
+},[dispatch]);
+const {products} = useSelector((state)=>state?.products?.products)
+
+
+//fetch brands
+useEffect(()=>{
+  dispatch(fetchBrandsAction())
+},[dispatch]);
+const {brands} = useSelector((state)=>state?.brands?.brands)
+
+//fetch colors
+useEffect(()=>{
+  dispatch(fetchColorsAction())
+},[dispatch]);
+const {colors} = useSelector((state)=>state?.colors?.colors)
 
   let colorsLoading;
   let colorsError;
-  let colors;
-  let setPrice;
-  let brands;
-  let setSize;
-  let setColor;
-  let setBrand;
+ 
+  
   let productsLoading;
   let productsError;
-  let products;
+ 
 
   return (
     <div className="bg-white">
-      <div>
+      <div>     
         {/* Mobile menu */}
         <Transition.Root show={mobileMenuOpen} as={Fragment}>
           <Dialog

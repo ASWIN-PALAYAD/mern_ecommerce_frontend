@@ -5,65 +5,69 @@ import {
   GlobeAmericasIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/20/solid";
-import { Link } from "react-router-dom";
-const product = {
-  name: "Basic Tee",
-  price: "$35",
-  href: "#",
-  breadcrumbs: [
-    { id: 1, name: "Women", href: "#" },
-    { id: 2, name: "Clothing", href: "#" },
-  ],
-  images: [
-    {
-      id: 1,
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/product-page-01-featured-product-shot.jpg",
-      imageAlt: "Back of women's Basic Tee in black.",
-      primary: true,
-    },
-    {
-      id: 2,
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/product-page-01-product-shot-01.jpg",
-      imageAlt: "Side profile of women's Basic Tee in black.",
-      primary: false,
-    },
-    {
-      id: 3,
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/product-page-01-product-shot-02.jpg",
-      imageAlt: "Front of women's Basic Tee in black.",
-      primary: false,
-    },
-  ],
-  colors: [
-    { name: "Black", bgColor: "bg-gray-900", selectedColor: "ring-gray-900" },
-    {
-      name: "Heather Grey",
-      bgColor: "bg-gray-400",
-      selectedColor: "ring-gray-400",
-    },
-  ],
-  sizes: [
-    { name: "XXS", inStock: true },
-    { name: "XS", inStock: true },
-    { name: "S", inStock: true },
-    { name: "M", inStock: true },
-    { name: "L", inStock: true },
-    { name: "XL", inStock: false },
-  ],
-  description: `
-    <p>The Basic tee is an honest new take on a classic. The tee uses super soft, pre-shrunk cotton for true comfort and a dependable fit. They are hand cut and sewn locally, with a special dye technique that gives each tee it's own look.</p>
-    <p>Looking to stock your closet? The Basic tee also comes in a 3-pack or 5-pack at a bundle discount.</p>
-  `,
-  details: [
-    "Only the best materials",
-    "Ethically and locally made",
-    "Pre-washed and pre-shrunk",
-    "Machine wash cold with similar colors",
-  ],
-};
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProductAction } from "../../../redux/slices/products/productSlices";
+
+
+// const product = {
+//   name: "Basic Tee",
+//   price: "$35",
+//   href: "#",
+//   breadcrumbs: [
+//     { id: 1, name: "Women", href: "#" },
+//     { id: 2, name: "Clothing", href: "#" },
+//   ],
+//   images: [
+//     {
+//       id: 1,
+//       imageSrc:
+//         "https://tailwindui.com/img/ecommerce-images/product-page-01-featured-product-shot.jpg",
+//       imageAlt: "Back of women's Basic Tee in black.",
+//       primary: true,
+//     },
+//     {
+//       id: 2,
+//       imageSrc:
+//         "https://tailwindui.com/img/ecommerce-images/product-page-01-product-shot-01.jpg",
+//       imageAlt: "Side profile of women's Basic Tee in black.",
+//       primary: false,
+//     },
+//     {
+//       id: 3,
+//       imageSrc:
+//         "https://tailwindui.com/img/ecommerce-images/product-page-01-product-shot-02.jpg",
+//       imageAlt: "Front of women's Basic Tee in black.",
+//       primary: false,
+//     },
+//   ],
+//   colors: [
+//     { name: "Black", bgColor: "bg-gray-900", selectedColor: "ring-gray-900" },
+//     {
+//       name: "Heather Grey",
+//       bgColor: "bg-gray-400",
+//       selectedColor: "ring-gray-400",
+//     },
+//   ],
+//   sizes: [
+//     { name: "XXS", inStock: true },
+//     { name: "XS", inStock: true },
+//     { name: "S", inStock: true },
+//     { name: "M", inStock: true },
+//     { name: "L", inStock: true },
+//     { name: "XL", inStock: false },
+//   ],
+//   description: `
+//     <p>The Basic tee is an honest new take on a classic. The tee uses super soft, pre-shrunk cotton for true comfort and a dependable fit. They are hand cut and sewn locally, with a special dye technique that gives each tee it's own look.</p>
+//     <p>Looking to stock your closet? The Basic tee also comes in a 3-pack or 5-pack at a bundle discount.</p>
+//   `,
+//   details: [
+//     "Only the best materials",
+//     "Ethically and locally made",
+//     "Pre-washed and pre-shrunk",
+//     "Machine wash cold with similar colors",
+//   ],
+// };
 
 const policies = [
   {
@@ -83,6 +87,8 @@ function classNames(...classes) {
 }
 
 export default function Product() {
+  const dispatch = useDispatch();
+
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
 
@@ -93,6 +99,16 @@ export default function Product() {
   let productSize;
   let cartItems = [];
 
+
+  //get id from params
+  const {id} = useParams();
+  useEffect(()=> {
+    dispatch(fetchProductAction(id));
+  },[id]);
+
+  //get data from store
+  const {loading,error,product:{product}} = useSelector((state)=>state?.products)
+
   return (
     <div className="bg-white">
       <main className="mx-auto mt-8 max-w-2xl px-4 pb-16 sm:px-6 sm:pb-24 lg:max-w-7xl lg:px-8">
@@ -100,10 +116,10 @@ export default function Product() {
           <div className="lg:col-span-5 lg:col-start-8">
             <div className="flex justify-between">
               <h1 className="text-xl font-medium text-gray-900">
-                {productDetails?.product?.name}
+                {product?.name}
               </h1>
               <p className="text-xl font-medium text-gray-900">
-                $ {productDetails?.product?.price}.00
+                $ {product?.price}.00
               </p>
             </div>
             {/* Reviews */}
@@ -111,7 +127,7 @@ export default function Product() {
               <h2 className="sr-only">Reviews</h2>
               <div className="flex items-center">
                 <p className="text-sm text-gray-700">
-                  {productDetails?.product?.averageRating}
+                  {product?.averageRating}
                   <span className="sr-only"> out of 5 stars</span>
                 </p>
                 <div className="ml-1 flex items-center">
@@ -119,7 +135,7 @@ export default function Product() {
                     <StarIcon
                       key={rating}
                       className={classNames(
-                        productDetails?.product?.averageRating > rating
+                        product?.averageRating > rating
                           ? "text-yellow-400"
                           : "text-gray-200",
                         "h-5 w-5 flex-shrink-0"
@@ -135,14 +151,14 @@ export default function Product() {
                   <a
                     href="#"
                     className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                    {productDetails?.product?.totalReviews} total reviews
+                    {product?.totalReviews} total reviews
                   </a>
                 </div>
               </div>
               {/* leave a review */}
 
               <div className="mt-4">
-                <Link to={`/add-review/${productDetails?.product?._id}`}>
+                <Link to={`/add-review/${product?._id}`}>
                   <h3 className="text-sm font-medium text-blue-600">
                     Leave a review
                   </h3>
@@ -156,10 +172,10 @@ export default function Product() {
             <h2 className="sr-only">Images</h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
-              {product.images.map((image) => (
+              {product?.images?.map((image) => (
                 <img
                   key={image.id}
-                  src={image.imageSrc}
+                  src={image}
                   alt={image.imageAlt}
                   className={classNames(
                     image.primary
@@ -180,7 +196,7 @@ export default function Product() {
                 <div className="flex items-center space-x-3">
                   <RadioGroup value={selectedColor} onChange={setSelectedColor}>
                     <div className="mt-4 flex items-center space-x-3">
-                      {productColor?.map((color) => (
+                      {product?.colors?.map((color) => (
                         <RadioGroup.Option
                           key={color}
                           value={color}
@@ -192,7 +208,7 @@ export default function Product() {
                             )
                           }>
                           <RadioGroup.Label as="span" className="sr-only">
-                            {color.name}
+                            {color}
                           </RadioGroup.Label>
                           <span
                             style={{ backgroundColor: color }}
@@ -219,7 +235,7 @@ export default function Product() {
                   className="mt-2">
                   {/* Choose size */}
                   <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-                    {productSize?.map((size) => (
+                    {product?.sizes?.map((size) => (
                       <RadioGroup.Option
                         key={size}
                         value={size}
@@ -258,7 +274,7 @@ export default function Product() {
             <div className="mt-10">
               <h2 className="text-sm font-medium text-gray-900">Description</h2>
               <div className="prose prose-sm mt-4 text-gray-500">
-                {productDetails?.product?.description}
+                {product?.description}
               </div>
             </div>
 
