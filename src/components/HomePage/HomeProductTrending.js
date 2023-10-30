@@ -17,11 +17,10 @@ const HomeProductTrending = () => {
   },[dispatch])
   //get data form store
   const {products:{products},error,loading}  = useSelector((state)=>state?.products);
-console.log(products);
   return (
     <>
       <section aria-labelledby="trending-heading">
-        <div className="mx-auto max-w-7xl py-24 px-4 sm:px-6 sm:py-32 lg:px-8 lg:pt-32">
+        <div className=" mx-auto max-w-7xl py-24 px-4 sm:px-6 sm:py-32 lg:px-8 lg:pt-32">
           <div className="md:flex md:items-center md:justify-between">
             <h2
               id="favorites-heading"
@@ -31,34 +30,38 @@ console.log(products);
             <a
               href="#"
               className="hidden text-sm font-medium text-indigo-600 hover:text-indigo-500 md:block">
-              Shop the collection
-              <span aria-hidden="true"> &rarr;</span>
+              {/* Shop the collection */}
+              {/* <span aria-hidden="true"> &rarr;</span> */}
             </a>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8">
+          <div className=" mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8">
             {products?.map((product) => (
               <Link
                 to={`/products/${product._id}`} 
-                key={product._id}
-                className="group relative">
+                key={product?._id}
+                className="group relative mt-5 border border-gray-200 p-2">
                 <div className="h-56 w-full overflow-hidden rounded-md group-hover:opacity-75 lg:h-72 xl:h-80">
                   <img
-                    src={product.images[0]}
+                    src={product?.images[0]}
                     alt={product.images[0]}
                     className="h-full w-full object-cover object-center"
                   />
                 </div>
-                <h3 className="mt-4 text-sm text-gray-700">
+                <h3 className="mt-4 text-sm text-black-500 font-bold">
                   
                     <span className="absolute inset-0" />
-                    {product.name}
+                    {product?.name}
                   
                 </h3>
-                <p className="mt-1 text-sm font-medium text-gray-900">
-                ₹ {product.price}.00
+                <p className="mt-1 text-sm font-medium text-red-500">
+                ₹ {product?.price}.00
                 </p>
-                <p className="mt-1 text-sm text-gray-500">{product.description}</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  {product?.description?.lenth <= 100 ? (product?.description) : (
+                    product?.description?.slice(0,100)+"..."
+                  )}
+                </p>
                 
               </Link>
             ))}

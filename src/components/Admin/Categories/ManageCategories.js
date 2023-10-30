@@ -3,9 +3,19 @@ import { Link } from "react-router-dom";
 import ErrorMsg from "../../ErrorMsg/ErrorMsg";
 import LoadingComponent from "../../LoadingComp/LoadingComponent";
 import NoDataFound from "../../NoDataFound/NoDataFound";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategoriesAction } from "../../../redux/slices/categories/categorySlices";
+import { useEffect } from "react";
+
 
 export default function ManageCategories() {
-  const { categories, loading, error } = {};
+  const dispatch = useDispatch();
+
+  useEffect(()=>{
+    dispatch(fetchCategoriesAction());
+  },[dispatch])
+
+  const { categories, loading, error } = useSelector((state)=>state?.categories?.categories)
 
   //delete category handler
   const deleteCategoryHandler = (id) => {};
@@ -53,11 +63,7 @@ export default function ManageCategories() {
                         className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                         No. Products
                       </th>
-                      <th
-                        scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Added By
-                      </th>
+                      
                       <th
                         scope="col"
                         className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -99,18 +105,13 @@ export default function ManageCategories() {
                             {category?.products?.length}
                           </div>
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                            {category?.user?.fullname}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           {new Date(category?.createdAt).toLocaleDateString()}
                         </td>
                         {/* edit icon */}
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-6">
                           <Link
-                            to={`/admin/edit-category/${category?._id}`}
+                            // to={`/admin/edit-category/${category?._id}`}
                             state={{
                               categoryName: category?.name,
                             }}
@@ -135,7 +136,7 @@ export default function ManageCategories() {
                         {/* delete icon */}
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-6">
                           <button
-                            onClick={() => deleteCategoryHandler(category?._id)}
+                            // onClick={() => deleteCategoryHandler(category?._id)}
                             className="text-indigo-600 hover:text-indigo-900">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

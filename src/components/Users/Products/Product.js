@@ -8,6 +8,10 @@ import { StarIcon } from "@heroicons/react/20/solid";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductAction } from "../../../redux/slices/products/productSlices";
+import { addOrderToCartAction, getCartItemFromLocalStorage } from "../../../redux/slices/cart/cartSlices";
+import ErrorMsg from "../../ErrorMsg/ErrorMsg";
+import Swal from "sweetalert2";
+
 
 
 // const product = {
@@ -92,12 +96,11 @@ export default function Product() {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
 
-  //Add to cart handler
-  const addToCartHandler = (item) => {};
+ 
   let productDetails = {};
   let productColor;
   let productSize;
-  let cartItems = [];
+ 
 
 
   //get id from params
@@ -106,9 +109,57 @@ export default function Product() {
     dispatch(fetchProductAction(id));
   },[id]);
 
-  //get data from store
-  const {loading,error,product:{product}} = useSelector((state)=>state?.products)
+  //cart items form local storage
+  useEffect(()=> {
+    dispatch(getCartItemFromLocalStorage());
+  },[dispatch]);
 
+  //get data from store
+  const {loading,error,product:{product}} = useSelector((state)=>state?.products);
+  const {cartItems} = useSelector((state)=>state?.carts);
+  // const cartItems = JSON.parse(localStorage.getItem('cartItems'))
+
+  const productExist = cartItems?.find((item)=> item?._id.toString() === product?._id?.toString());
+
+ //Add to cart handler
+ const addToCartHandler = () => {
+  //check if product is in cart
+  if(productExist){
+    return Swal.fire({
+      icon: "error",
+      title: "oops!",
+      text: "this product is already in cart.."
+    });
+  }
+  if(selectedColor === '' || selectedSize === ''){
+    return Swal.fire({
+      icon: "error",
+      title: "oops!",
+      text: "Plese select a color and size"
+    });
+  }
+    dispatch(addOrderToCartAction({
+      _id:product?._id,
+      name:product?.name,
+      qty:1,
+      price:product?.price,
+      description:product?.description,
+      sizes :selectedSize,
+      colors : selectedColor,
+      image: product?.images[0],
+      totalPrice : product?.price,
+      qtyLeft :product.qtyLeft,
+    }));
+
+    Swal.fire({
+      icon: "success",
+      title: "Good job !",
+      text: "Product added to cart successfully",
+    });
+    return dispatch(getCartItemFromLocalStorage()); 
+ };
+
+ console.log(product);
   return (
     <div className="bg-white">
       <main className="mx-auto mt-8 max-w-2xl px-4 pb-16 sm:px-6 sm:pb-24 lg:max-w-7xl lg:px-8">
@@ -119,7 +170,7 @@ export default function Product() {
                 {product?.name}
               </h1>
               <p className="text-xl font-medium text-gray-900">
-                $ {product?.price}.00
+              ₹ {product?.price}.00
               </p>
             </div>
             {/* Reviews */}
@@ -127,15 +178,15 @@ export default function Product() {
               <h2 className="sr-only">Reviews</h2>
               <div className="flex items-center">
                 <p className="text-sm text-gray-700">
-                  {product?.averageRating}
-                  <span className="sr-only"> out of 5 stars</span>
+                  {product?.reviews?.length > 0 ? product.averageRating : 0}
+                  {/* <span className="sr-only"> out of 5 stars</span> */}
                 </p>
                 <div className="ml-1 flex items-center">
                   {[0, 1, 2, 3, 4].map((rating) => (
                     <StarIcon
                       key={rating}
                       className={classNames(
-                        product?.averageRating > rating
+                        +product?.averageRating > rating
                           ? "text-yellow-400"
                           : "text-gray-200",
                         "h-5 w-5 flex-shrink-0"
@@ -180,7 +231,7 @@ export default function Product() {
                   className={classNames(
                     image.primary
                       ? "lg:col-span-2 lg:row-span-2"
-                      : "hidden lg:block",
+                      : " lg:block",  //hidden in front
                     "rounded-lg"
                   )}
                 />
@@ -254,14 +305,23 @@ export default function Product() {
                 </RadioGroup>
               </div>
               {/* add to cart */}
-              <button
+              {product?.qtyLeft <= 0 ? (
+                <button
+                disabled
+                style={{cursor:"not-allowed"}}
+                className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-gray-600 py-3 px-8 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Add to cart
+              </button>
+              ) : (
+                <button
                 onClick={() => addToCartHandler()}
                 className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 Add to cart
               </button>
+              )}
               {/* proceed to check */}
 
-              {cartItems.length > 0 && (
+              {cartItems?.length > 0 && (
                 <Link
                   to="/shopping-cart"
                   className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-green-800 py-3 px-8 text-base font-medium text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -309,7 +369,7 @@ export default function Product() {
         </div>
 
         {/* Reviews */}
-        <section aria-labelledby="reviews-heading" className="mt-16 sm:mt-24">
+        <section aria-labelledby="reviews-heading" className="mt-16 sm:mt-24"> 
           <h2
             id="reviews-heading"
             className="text-lg font-medium text-gray-900">
@@ -317,7 +377,7 @@ export default function Product() {
           </h2>
 
           <div className="mt-6 space-y-10 divide-y divide-gray-200 border-t border-b border-gray-200 pb-10">
-            {productDetails?.product?.reviews.map((review) => (
+            {product?.reviews.map((review) => (
               <div
                 key={review._id}
                 className="pt-10 lg:grid lg:grid-cols-12 lg:gap-x-8">
@@ -347,20 +407,15 @@ export default function Product() {
                     <h3 className="text-sm font-medium text-gray-900">
                       {review?.message}
                     </h3>
-
-                    <div
-                      className="mt-3 space-y-6 text-sm text-gray-500"
-                      dangerouslySetInnerHTML={{ __html: review.content }}
-                    />
                   </div>
                 </div>
 
                 <div className="mt-6 flex items-center text-sm lg:col-span-4 lg:col-start-1 lg:row-start-1 lg:mt-0 lg:flex-col lg:items-start xl:col-span-3">
-                  <p className="font-medium text-gray-900">{review.author}</p>
+                  <p className="font-medium text-gray-900">{review?.user?.fullname}</p>
                   <time
-                    dateTime={review.datetime}
+                    dateTime={review?.createdAt}
                     className="ml-4 border-l border-gray-200 pl-4 text-gray-500 lg:ml-0 lg:mt-2 lg:border-0 lg:pl-0">
-                    {review.date}
+                    {new Date(review?.createdAt).toLocaleDateString()}
                   </time>
                 </div>
               </div>

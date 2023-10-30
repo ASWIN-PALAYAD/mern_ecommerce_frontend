@@ -1,6 +1,7 @@
 import axios from "axios";
 import baseURL from "../../../utils/baseURL";
 import { createAsyncThunk,createSlice } from "@reduxjs/toolkit";
+import { resetErrorAction, resetSuccessAction } from "../globalActions/globalActions";
 
 const initialState = {
     loading:false,
@@ -15,9 +16,9 @@ const initialState = {
 
 //create color action
 export const createColorAction = createAsyncThunk('color/create', 
-    async(payload,{rejectWithValue,getState,dispatch}) =>{
+    async(name,{rejectWithValue,getState,dispatch}) =>{
+        console.log(name);
         try {
-            const {name} = payload;
             const token = getState().users?.userAuth?.userInfo?.token;
             const config = {
                 headers:{
@@ -55,7 +56,7 @@ export const fetchColorsAction = createAsyncThunk('color/fetch-All',
 const colorSlice = createSlice({
     name:'colors',
     initialState,
-    extraReducers:(builder)=>{
+    extraReducers:(builder)=>{ 
         //create
         builder.addCase(createColorAction.pending,(state)=>{
             state.loading = true
@@ -88,6 +89,20 @@ const colorSlice = createSlice({
             state.isAdded = false;
             state.error = action.payload
         });
+
+
+
+         //reset err
+         builder.addCase(resetErrorAction.pending,(state,action)=>{
+            state.error = null
+            state.isAdded = false
+        });
+        //reset success
+        builder.addCase(resetSuccessAction.pending,(state,action)=>{
+            state.isAdded = false;
+            state.error = null
+        })
+
 
 
 

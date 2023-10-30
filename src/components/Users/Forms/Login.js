@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUserAction } from "../../../redux/slices/users/userSlice";
 import ErrorMsg from "../../ErrorMsg/ErrorMsg";
@@ -32,11 +32,11 @@ const Login = () => {
   );
 
   //redirect
-  // if (userInfo?.userFound?.isAdmin) {
-  //   window.location.href = "/admin";
-  // } else {
-  //   window.location.href = "/customer-profile";
-  // }
+  useEffect(()=>{
+    if(userInfo?.userFound){
+      window.location.href = '/'
+    }
+  },[userInfo])
 
   return (
     <>
@@ -93,7 +93,7 @@ const Login = () => {
                     {loading ? (
                       <LoadingComponent/>
                     ) : (
-                      <button className="bg-blue-800 hover:bg-blue-900 text-white font-bold font-heading py-5 px-8 rounded-md uppercase">
+                      <button  className="bg-blue-800 hover:bg-blue-900 text-white font-bold font-heading py-5 px-8 rounded-md uppercase">
                         Login
                       </button>
                     )}

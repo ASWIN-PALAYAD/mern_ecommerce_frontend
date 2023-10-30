@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter, Route, Routes,useLocation } from "react-router-dom";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import ManageCoupons from "./components/Admin/Coupons/ManageCoupons";
 import AddCoupon from "./components/Admin/Coupons/AddCoupon";
@@ -11,7 +11,7 @@ import Navbar from "./components/Navbar/Navbar";
 import OrderHistory from "./components/Admin/Orders/ManageOrders";
 import OrderPayment from "./components/Users/Products/OrderPayment";
 import ManageCategories from "./components/Admin/Categories/ManageCategories";
-import UpdateProduct from "./components/Admin/Products/UpdateProduct";
+import ProductUpdate from "./components/Admin/Products/ProductUpdate";
 import ManageStocks from "./components/Admin/Products/ManageStocks";
 import CategoryToAdd from "./components/Admin/Categories/CategoryToAdd";
 import AddCategory from "./components/Admin/Categories/AddCategory";
@@ -28,28 +28,46 @@ import UpdateCategory from "./components/Admin/Categories/UpdateCategory";
 import OrdersList from "./components/Admin/Orders/OdersList";
 import ManageOrders from "./components/Admin/Orders/ManageOrders";
 import Customers from "./components/Admin/Orders/Customers";
-import BrandsColorsList from "./components/Admin/Categories/BrandsColorsList";
+import BrandsList from "./components/Admin/Categories/BrandsList";
 import AuthRoute from "./components/AuthRoute/AuthRoute";
 import AdminRoute from "./components/AuthRoute/AdminRoute";
+import ThanksForOrdering from "./components/Users/Products/ThanksForOrdering";
+import UpdateOrders from "./components/Admin/Orders/UpdateOrders";
+import ColorsList from "./components/Admin/Categories/ColorsList";
 
+
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+}
 
 const App = () => {
+
   return (
     <BrowserRouter>
+      <ScrollToTop/>
+      {/* {!isAdmin &&  <Navbar />} */}
       <Navbar />
       {/* hide navbar if admin */}
       <Routes>
         {/* admin route */}
-        <Route path="admin" element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
-        }>
-          {/* products */} 
+        <Route
+          path="admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        >
+          {/* products */}
           <Route path="" element={<OrdersList />} />
           <Route path="add-product" element={<AddProduct />} />
           <Route path="manage-products" element={<ManageStocks />} />
-          <Route path="products/edit/:id" element={<UpdateProduct />} />
+          <Route path="products/edit/:id" element={<ProductUpdate />} />
           {/* coupons */}
           <Route path="add-coupon" element={<AddCoupon />} />
           <Route path="manage-coupon" element={<ManageCoupons />} />
@@ -61,13 +79,14 @@ const App = () => {
           <Route path="edit-category/:id" element={<UpdateCategory />} />
           {/* brand category */}
           <Route path="add-brand" element={<AddBrand />} />
-          <Route path="all-brands" element={<BrandsColorsList />} />
+          <Route path="all-brands" element={<BrandsList />} />
           {/* color category */}
           <Route path="add-color" element={<AddColor />} />
-          <Route path="all-colors" element={<BrandsColorsList />} />
+          <Route path="all-colors" element={<ColorsList />} />
           {/* Orders */}
           <Route path="manage-orders" element={<ManageOrders />} />
-          <Route path="order-payment" element={<OrderPayment />} />
+          <Route path="orders/:id" element={<UpdateOrders />} />
+          {/* <Route path="order-payment" element={<OrderPayment />} /> */}
           <Route path="customers" element={<Customers />} />
         </Route>
         {/* public links */}
@@ -76,16 +95,30 @@ const App = () => {
         <Route path="/products-filters" element={<ProductsFilters />} />
         <Route path="/products/:id" element={<Product />} />
         <Route path="/all-categories" element={<AllCategories />} />
+        <Route path="/success" element={<ThanksForOrdering />} />
+
         {/* review */}
-        <Route path="/add-review/:id" element={<AddReview />} />
+        <Route path="/add-review/:id" element={<AuthRoute>
+          <AddReview />
+        </AuthRoute>} />
 
         {/* shopping cart */}
         <Route path="/shopping-cart" element={<ShoppingCart />} />
-        <Route path="/order-payment" element={<OrderPayment />} />
+        <Route path="/order-payment" element={<AuthRoute>
+          <OrderPayment />
+        </AuthRoute>} />
         {/* users */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RegisterForm />} />
-        <Route path="/customer-profile" element={<CustomerProfile />} />
+
+        <Route
+          path="/customer-profile"
+          element={
+            <AuthRoute>
+              <CustomerProfile />
+            </AuthRoute>
+          }
+        ></Route>
       </Routes>
     </BrowserRouter>
   );

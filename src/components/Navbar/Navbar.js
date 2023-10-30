@@ -8,35 +8,52 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import baseURL from "../../utils/baseURL";
-import logo from "./logo3.png";
+import logo from "./logo.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategoriesAction } from "../../redux/slices/categories/categorySlices";
+import { getCartItemFromLocalStorage } from "../../redux/slices/cart/cartSlices";
+import { logoutUserAction } from "../../redux/slices/users/userSlice";
+import { fetchCouponsAction } from "../../redux/slices/coupons/couponSlices";
 
 export default function Navbar() {
-
   const dispatch = useDispatch();
 
-  useEffect(()=> {
-    dispatch(fetchCategoriesAction());
+  useEffect(()=>{
+    dispatch(fetchCouponsAction());
   },[dispatch])
+
+  //get coupons
+  const { coupons, loading, error } = useSelector((state)=>state?.coupons)
+  const currentCoupon = coupons? coupons?.coupons?.[coupons?.coupons?.length - 1] : [];
+  
+
+  const logoutHandler = ()=>{
+    dispatch(logoutUserAction());
+    window.location.reload()
+    
+  }
+
+  useEffect(() => {
+    dispatch(fetchCategoriesAction());
+  }, [dispatch]);
   //get data from store
-  const {categories} = useSelector((state)=>state?.categories?.categories)
-  const categoriesToDisplay = categories?.slice(0,3);
+  const { categories } = useSelector((state) => state?.categories?.categories);
+  const categoriesToDisplay = categories?.slice(0, 3);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  //get cart items from local storage
-  let cartItemsFromLocalStorage;
 
   //get user from local storage
   const user = JSON.parse(localStorage.getItem("userInfo"));
   const isLoggedIn = user?.token ? true : false;
 
-  
+  //get data from store
+  useEffect(() => {
+    dispatch(getCartItemFromLocalStorage());
+  }, [dispatch]);
 
 
- 
-  
+  const { cartItems } = useSelector((state) => state?.carts);
+
   return (
     <div className="bg-white">
       {/* Mobile menu */}
@@ -163,37 +180,49 @@ export default function Navbar() {
 
       <header className="relative z-10">
         <nav aria-label="Top">
+          {/* coupon navbar */}
+          {!currentCoupon?.isExpired && (
+             <div className="bg-yellow-600">
+             <div className="mx-auto flex h-10 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+               <p style={{textAlign:'center',width:"100%"}} className="flex-1 text-center text-sm font-medium text-white lg:flex-none">
+                 {currentCoupon ? `${currentCoupon?.code} - ${currentCoupon?.discount}% Discount , ${currentCoupon?.daysLeft}` : "No Flash sale at the moment"}
+               </p>
+ 
+               <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
+                 
+               </div>
+             </div>
+           </div>
+          )}
           {/* Top navigation  desktop*/}
-          <div className="bg-gray-900">
+          {!isLoggedIn && (<div className="bg-gray-800">
             <div className="mx-auto flex h-10 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-              <p className="flex-1 text-center text-sm font-medium text-white lg:flex-none">
-                Get free delivery on orders over $100
-              </p>
+              
 
               <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-              {!isLoggedIn && (
-                    <>
-                      <div className="flow-root">
-                        <Link
-                          to="/register"
-                          className="-m-2 block p-2 font-medium text-white"
-                        >
-                          Create an account
-                        </Link>
-                      </div>
-                      <div className="flow-root">
-                        <Link
-                          to="/login"
-                          className="-m-2 block p-2 font-medium text-white"
-                        >
-                          Sign in
-                        </Link>
-                      </div>
-                    </>
-                  )}
+                {!isLoggedIn && (
+                  <>
+                    <div className="flow-root">
+                      <Link
+                        to="/register"
+                        className="-m-2 block p-2 font-medium text-white"
+                      >
+                        Create an account
+                      </Link>
+                    </div>
+                    <div className="flow-root">
+                      <Link
+                        to="/login"
+                        className="-m-2 block p-2 font-medium text-white"
+                      >
+                        Sign in
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-          </div>
+          </div>)}
 
           {/* Deskto Navigation */}
           <div className="bg-white">
@@ -201,13 +230,13 @@ export default function Navbar() {
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                   {/* Logo (lg+) */}
-                  <div className="hidden lg:flex lg:items-center">
+                  <div className="hidden lg:flex lg:items-center ">
                     <Link to="/">
                       <span className="sr-only">Your Company</span>
                       <img
-                        className="h-32 pt-2 w-auto"
+                        className="h-12 pt-2  w-auto"
                         src={logo}
-                        alt="i-novotek logo"
+                        alt="kidzone logo"
                       />
                     </Link>
                   </div>
@@ -272,7 +301,7 @@ export default function Navbar() {
                   {/* logo */}
                   <Link to="/" className="lg:hidden">
                     <img
-                      className="h-32 mt-2 w-auto"
+                      className="h-12 mt-2 w-auto"
                       src={logo}
                       alt="i-novotek logo"
                     />
@@ -280,16 +309,51 @@ export default function Navbar() {
 
                   {/* login profile icon mobile */}
                   <div className="flex flex-1 items-center justify-end">
+                    
+                    {user?.userFound?.isAdmin && (
+                      <Link
+                      to={'/admin'}
+                      className="inline-flex items-center rounded-md border border-transparent bg-red-500  px-4 py-2
+                      text-sm font-medium text-white shadow-sm shover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                      focus:ring-offset-2"
+                    >
+                      Admin Dashboard
+
+                    </Link>
+                    )}
                     <div className="flex items-center lg:ml-8">
-                      <div className="flex space-x-8">
-                        {isLoggedIn && <div className="flex">
-                          <Link
-                            to="/customer-profile"
-                            className="-m-2 p-2 text-gray-400 hover:text-gray-500"
-                          >
-                            <UserIcon className="h-6 w-6" aria-hidden="true" />
-                          </Link>
-                        </div>}
+                      <div className="flex space-x-8 items-center align-middle">
+                        {isLoggedIn && (
+                          <div className="flex">
+                            <Link
+                              to="/customer-profile"
+                              className="-m-2 p-2 mr-2 text-gray-400 hover:text-gray-500"
+                            >
+                              <UserIcon
+                                className="h-6 w-6"
+                                aria-hidden="true"
+                              />
+                            </Link>
+                              {/* logout */}
+                            <button onClick={logoutHandler} className="bg-blue-500 rounded-md p-1 text-white">
+                              {/* <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                class="w-6 h-6 text-gray-500"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+                                />
+                              </svg> */}
+                              logout
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       <span
@@ -307,11 +371,9 @@ export default function Navbar() {
                             aria-hidden="true"
                           />
                           <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                            {cartItemsFromLocalStorage?.length > 0
-                              ? cartItemsFromLocalStorage.length
-                              : 0}
+                            {cartItems?.length > 0 ? cartItems.length : 0}
                           </span>
-                        </Link>
+                        </Link> 
                       </div>
                     </div>
                   </div>

@@ -25,7 +25,7 @@ export default function AddProduct() {
     //validation
     const newErrs = []
     newFiles.forEach(file=>{
-      if(file?.size > 1000000){
+      if(file?.size > 3000000){
         newErrs.push(`${file?.name} is too large`)
       }
       if(!file?.type?.startsWith('image/')){

@@ -33,13 +33,13 @@ const Products = ({ products }) => {
                       {product?.name}
                     </h3>
                     <p className="text-lg font-bold font-heading text-blue-500">
-                      <span>${product?.price}</span>
+                      <span>₹ {product?.price}</span>
                       <span className="text-xs text-gray-500 font-semibold font-heading line-through">
-                        $40.99
+                       ₹ {product?.price ? product.price + product.price * 0.15 : product.price}
                       </span>
                     </p>
                   </a>
-                  <a
+                  {/* <a
                     className="ml-auto mr-2 flex items-center justify-center w-12 h-12 bg-blue-300 hover:bg-blue-400 rounded-md"
                     href="#">
                     <svg
@@ -58,7 +58,7 @@ const Products = ({ products }) => {
                         fill="white"
                       />
                     </svg>
-                  </a>
+                  </a> */}
                 </div>
               </div>
             </div>

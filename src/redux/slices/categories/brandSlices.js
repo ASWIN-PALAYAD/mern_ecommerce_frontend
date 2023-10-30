@@ -1,6 +1,8 @@
 import axios from "axios";
 import baseURL from "../../../utils/baseURL";
 import { createAsyncThunk,createSlice } from "@reduxjs/toolkit";
+import { resetErrorAction, resetSuccessAction } from "../globalActions/globalActions";
+
 
 const initialState = {
     loading:false,
@@ -14,10 +16,9 @@ const initialState = {
 
 
 //create brand action
-export const createBrandAction = createAsyncThunk('brand/create', 
-    async(payload,{rejectWithValue,getState,dispatch}) =>{
+export const createBrandAction = createAsyncThunk('brand/create',  
+    async(name,{rejectWithValue,getState,dispatch}) =>{
         try {
-            const {name} = payload;
             const token = getState().users?.userAuth?.userInfo?.token;
             const config = {
                 headers:{
@@ -89,6 +90,17 @@ const brandSlice = createSlice({
             state.error = action.payload
         });
 
+
+         //reset err
+         builder.addCase(resetErrorAction.pending,(state,action)=>{
+            state.error = null
+            state.isAdded = false
+        });
+        //reset success
+        builder.addCase(resetSuccessAction.pending,(state,action)=>{
+            state.isAdded = false;
+            state.error = null
+        })
 
 
     }

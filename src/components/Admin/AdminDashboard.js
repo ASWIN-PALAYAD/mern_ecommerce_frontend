@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { Link, Outlet } from "react-router-dom";
 import {
@@ -16,6 +16,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import logo from "../Navbar/logo3.png";
+import { useSelector } from "react-redux";
 const ordersLinks = [
   {
     name: "Dashboard",
@@ -154,14 +155,13 @@ function classNames(...classes) {
 const CategoryLinks = [
   { name: "Add Category", href: "category-to-add", icon: CogIcon },
   {
-    name: "Manage Category",
+    name: "All Categories",
     href: "manage-category",
     icon: QuestionMarkCircleIcon,
   },
 ];
 
 const colorsLinks = [
-  { name: "Add New Color", href: "add-color", icon: CogIcon },
   {
     name: "All Colors",
     href: "all-colors",
@@ -170,7 +170,6 @@ const colorsLinks = [
 ];
 
 const brandsLinks = [
-  { name: "Add New Brand", href: "add-brand", icon: CogIcon },
   {
     name: "All Brands",
     href: "all-brands",
@@ -178,7 +177,13 @@ const brandsLinks = [
   },
 ];
 
+
+
+
 export default function Example() {
+
+  const adminDetails = useSelector((state)=>state?.users?.profile?.user);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -354,9 +359,9 @@ export default function Example() {
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="flex flex-grow flex-col overflow-y-auto bg-cyan-900 pt-5 pb-4">
+          <div className="flex flex-grow flex-col overflow-y-auto  bg-cyan-800 pt-32 pb-4 ">
             <nav
-              className="mt-5 flex flex-1 flex-col divide-y divide-cyan-800 overflow-y-auto"
+              className="mt-5 flex flex-1 flex-col divide-y divide-cyan-800 overflow-y-scroll"
               aria-label="Sidebar">
               {/* orders links desktop */}
               <div className="mt-1 pt-1">
@@ -498,7 +503,7 @@ export default function Example() {
                             alt=""
                           />
                           <h1 className="ml-3 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:leading-9">
-                            Good morning, Emilia Birch
+                            {`Welcome ${adminDetails?.fullname}`}
                           </h1>
                         </div>
                         <dl className="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
@@ -532,7 +537,7 @@ export default function Example() {
                                 stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            Date Joined: 12/12/2020
+                            {new Date(adminDetails?.createdAt).toLocaleDateString()}
                           </dd>
                           {/* email */}
                           <dd className="mt-3 flex items-center text-sm font-medium  text-gray-500 sm:mr-6 sm:mt-0">
@@ -548,7 +553,7 @@ export default function Example() {
                                 stroke-width="2"
                                 d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
                             </svg>
-                            admin@gmail.com
+                            {adminDetails?.email}
                           </dd>
                         </dl>
                       </div>

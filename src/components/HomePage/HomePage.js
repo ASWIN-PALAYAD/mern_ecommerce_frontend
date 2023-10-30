@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import HomeCategories from "./HomeCategories";
 import HomeProductTrending from "./HomeProductTrending";
-
+import kidssale from '../../images/girl-shopping.jpg'
 const offers = [
   {
     name: "Download the app",
@@ -92,22 +92,24 @@ export default function Example() {
                     <p className="mt-4 text-xl text-gray-600">
                       New products are added every week. Check back often to see
                     </p>
-                    <div className="mt-6">
+                    {/* <div className="mt-6">
                       <a
                         href="#"
                         className="inline-block rounded-md border border-transparent bg-indigo-600 py-3 px-8 font-medium text-white hover:bg-indigo-700">
                         Shop Productivity
                       </a>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
             </div>
             <div className="h-48 w-full sm:h-64 lg:absolute lg:top-0 lg:right-0 lg:h-full lg:w-1/2">
+
               <img
-                src="https://tailwindui.com/img/ecommerce-images/home-page-02-hero-half-width.jpg"
+                // src="https://tailwindui.com/img/ecommerce-images/home-page-02-hero-half-width.jpg"
+                src={kidssale}
                 alt=""
-                className="h-full w-full object-cover object-center"
+                className="h-full w-full object-cover object-center "
               />
             </div>
           </div>
