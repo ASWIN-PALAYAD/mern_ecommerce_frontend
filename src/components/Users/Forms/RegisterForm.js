@@ -34,7 +34,7 @@ useEffect(()=>{
 if(user){
   window.location.href = '/login'
 }
-},[user])
+},[user,dispatch])
 
   return (
     <>
