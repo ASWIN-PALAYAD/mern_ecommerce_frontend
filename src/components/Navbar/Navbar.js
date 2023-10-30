@@ -28,8 +28,9 @@ export default function Navbar() {
   
 
   const logoutHandler = ()=>{
-    dispatch(logoutUserAction());
+    dispatch(logoutUserAction()); 
     window.location.reload()
+    // window.location.href = '/login'
     
   }
 
